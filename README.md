@@ -1,5 +1,6 @@
 # Simulacion-ProyectoFinal
 Proyecto Final de la clase de Simulación en el ITAM con el profesor Jorge de la Vega.
+Link para el latex: https://www.overleaf.com/8589748229sgmwhchkspvj
 
 
 ### Actualización 18.nov.20
