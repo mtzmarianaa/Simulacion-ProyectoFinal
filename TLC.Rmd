@@ -3,16 +3,187 @@ title: "Teorema del Límite Central"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
+Simulación del **Teorema del Límite Central** a partir de muestras aleatorias de diferentes distribuciones y diferentes tamaños de muestra.
 ```{r}
-plot(cars)
+library(ggplot2)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+La función que utilizamos para generar las muestras aleatorias de diferentes distribuciones y tamaños está dada por
+```{r}
+ma <- function(poblacion)
+{
+  n <- c(5, 10, 30, 50, 100, 150) # Tamaño de muestra
+  #n <- c(30, 50, 100, 150) # Tamaño de muestra
+  t <- c(10, 100, 1000, 10000)  # Número de veces que se generan las muestras (repeticiones, trial)
+  
+  df <- data.frame()
+  
+  for(i in n)   # Para cada tamaño de muestra
+  {
+    col <- c()
+    for(j in t)   # Hacemos j repeticiones o generaciones de la muestra de tamaño n
+    {
+      trial <- 1:j
+      cont <- j
+      value <- c()
+      while(cont>0)
+      {
+        muestra <- sample(poblacion,i,replace=TRUE)    # extraemos la muestra de exponenciales de tamaño i
+        xbar <- mean(muestra)                    # sacamos la media de la muestra
+        value <- c(value,xbar)                   # Guardamos la media de la muestra
+        cont <- cont -1                          # Pasamos a generar otra muestra de las j que debemos generae
+      }
+      sbar <- sd(value)                     # Desviación estándar de la muestra de tamaño i
+      col <- cbind(trial,value,sbar,i,j)    # Juntamos el # de repetición en el que vamos, la media y la desviación de la muestra, el tamaño i y el total de repeticiones j
+      df <- rbind(df,col)                   # Lo guardamos en el dataframe
+    }
+  }
+  return(df)
+}
+```
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+Para hacer las gráficas usamos la siguiente función:
+
+```{r}
+graphs <- function(dataframe,mu,i)
+{
+  names(dataframe) <- c("# de repetición", "Media", "Desviación estándar", "n", "Repeticiones")
+  dist <- c('exponenciales', 'uniformes', 'binomiales', 'Poisson')
+  col <- c('royalblue3','steelblue3','slateblue2','mediumpurple2') #"steelblue"
+
+  myTitle <- paste("Muestras", dist[i], sep = " ")
+  
+  g <- ggplot(dataframe, aes(x = Media)) + geom_density(fill = col[i]) + 
+          facet_grid(n ~ Repeticiones, labeller = label_both) +  
+          ggtitle(myTitle) + 
+          theme(plot.title = element_text(hjust = 0.5))+
+          geom_vline(xintercept = mu, linetype = "dashed") +
+          ylab('Densidad')
+  
+  return(g)
+}
+```
+
+
+
+\underline{Distribuciones continuas}
+
+### **1.** Distribución exponencial
+```{r}
+set.seed(123)
+
+# Creamos vector vacío para medias de muestras exponenciales
+vExp <- NULL
+
+n <- 100
+N <- 10000
+lambda <- 0.2
+
+for(i in 1:N)
+{
+  vExp <- c(vExp,mean(rexp(n,lambda)))
+}
+
+# Para la media y desviación estándar teórica tenemos
+tMedia <- 1/lambda
+tDS <- 1/lambda^2
+```
+
+Graficamos el histograma de las medias muestrales 
+```{r}
+hist(vExp, xlab='Media muestral',ylab='Frecuencia', main="Histograma de medias muestrales de distribución exponencial (n=40)")
+abline(v=mean(vExp), lwd=3, col='blue')
+abline(v=tMedia, lwd=3, col='red')
+legend(c("Muestral", "Teórica"),x='topright', lwd=c(3,3), col=c('blue', 'red'))
+```
+
+Estimación de la densidad
+
+```{r}
+par(mfrow=c(1,2))
+hist(vExp, breaks=60, main="Histograma de medias simuladas",ylab = 'Frecuencia',xlab='Muestras exponenciales')
+plot(density(vExp), main="Densidad estimada",ylab='Densidad')
+polygon(density(vExp), border='red',lty=2)
+```
+
+
+Usando la función definida previamente:
+
+```{r}
+set.seed(123)
+
+pob <- rexp(100000,0.3)
+mu <- mean(pob)
+sigma <- sd(pob)
+
+cat('Media: ', mu,'\nDesviación estándar: ',sigma)
+
+df <- ma(pob)
+head(df)
+
+graphs(df,mu,1)
+
+```
+
+
+
+
+### **2.** Distribución uniforme
+
+```{r}
+set.seed(123)
+
+pob <- runif(100000,0,1)
+mu <- mean(pob)
+sigma <- sd(pob)
+
+cat('Media: ', mu,'\nDesviación estándar: ',sigma)
+
+df <- ma(pob)
+head(df)
+
+graphs(df,mu,2)
+
+```
+
+
+\underline{Distribuciones discretas}
+
+### **3.** Distribución binomial
+
+```{r}
+set.seed(123)
+
+pob <- rbinom(800,10000,0.2)
+mu <- mean(pob)
+sigma <- sd(pob)
+
+cat('Media: ', mu,'\nDesviación estándar: ',sigma)
+
+df <- ma(pob)
+head(df)
+
+graphs(df,mu,3)
+```
+
+
+### **4.** Distribución Poisson
+
+```{r}
+set.seed(123)
+
+pob <- rpois(100000,0.4)
+mu <- mean(pob)
+sigma <- sd(pob)
+
+cat('Media: ', mu,'\nDesviación estándar: ',sigma)
+
+df <- ma(pob)
+head(df)
+
+graphs(df,mu,4)
+```
+
+
+
