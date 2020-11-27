@@ -122,7 +122,9 @@ cat('Media: ', mu,'\nDesviación estándar: ',sigma)
 df <- ma(pob)
 head(df)
 
+#png(file="tlc_exponencial.png")
 graphs(df,mu,1)
+#dev.off()
 
 ```
 
@@ -143,7 +145,9 @@ cat('Media: ', mu,'\nDesviación estándar: ',sigma)
 df <- ma(pob)
 head(df)
 
+#png(file="tlc_uniforme.png")
 graphs(df,mu,2)
+#dev.off()
 
 ```
 
@@ -164,7 +168,9 @@ cat('Media: ', mu,'\nDesviación estándar: ',sigma)
 df <- ma(pob)
 head(df)
 
+#png(file="tlc_binomial.png")
 graphs(df,mu,3)
+#dev.off()
 ```
 
 
@@ -182,7 +188,9 @@ cat('Media: ', mu,'\nDesviación estándar: ',sigma)
 df <- ma(pob)
 head(df)
 
+#png(file="tlc_poisson.png")
 graphs(df,mu,4)
+#dev.off()
 ```
 
 
