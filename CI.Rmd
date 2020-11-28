@@ -3,14 +3,156 @@ title: "Intervalos de Confianza"
 output: html_notebook
 ---
 
-Simulación de Coverage Probability of Confidence Intervals 
-
 ```{r}
-plot(cars)
+library(ggplot2)
+library(tidyverse)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+### Simulación de Coverage Probability of Confidence Intervals 
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+The simulation method for estimating coverage probability \n
+Let's use simulation to verify that the formula for a CI of the mean is valid when you draw samples from a standard normal population. The following DATA step simulates 10,000 samples of size n=50:
+
+Función que genera **N** muestras aleatorias normales de tamaño **n** con probabilidad acumulada **p**
+```{r}
+muIC <- function(n=5,N=10,p=0.975)
+{
+  set.seed(123)
+
+  df <- data.frame(matrix(NA,n,7))
+  colnames(df) <- c('# de muestra','n','media','desv. est.','error','LI','LS')
+  
+  for(i in 1:N)
+  {
+    x <- rnorm(n)    # Creamos una muestra de tamaño N
+    mu <- mean(x)
+    sigma <- sd(x)
+    error <- qnorm(p)*sigma/sqrt(n)
+    
+    df[i,1] <- i
+    df[i,2] <- n
+    df[i,3] <- mu
+    df[i,4] <- sigma
+    df[i,5] <- error
+    df[i,6] <- mu - error
+    df[i,7] <- mu + error
+  }
+  
+  return(df)
+}
+```
+
+
+Probamos la función
+```{r}
+muNormal <- muIC(p=0.6)
+muNormal
+```
+
+Veamos cómo se ve el histograma de medias
+
+```{r}
+d = muNormal$media
+hist(d, xlab='Media muestral',ylab='Frecuencia', main="Histograma de medias muestrales normales (n=50)",breaks=9)
+abline(v=mean(d), lwd=3, col='red')
+```
+
+Para contar la proporción de muestras cuyos intervalos de confianza contienen al valor del parámetro, creamos la siguiente función
+```{r}
+cuentaCI <- function(dataframe)
+{
+  n <- dataframe$n
+  N <- length(n)
+  mu <- dataframe$media
+  lower <- dataframe$LI
+  upper <- dataframe$LS
+  res <- 0
+  c <- 0
+  
+  for(i in 1:N)
+  {
+    
+    if(0>=lower[i] & 0<=upper[i])
+    {
+      c = c + 1
+    }
+  }
+  
+  res <- c/N*100
+  
+  return(res)
+  
+}
+```
+
+
+
+Probamos con más
+```{r}
+muNormal <- muIC(n=150,N=10000,p=0.95)
+#muNormal
+cuentaCI(muNormal)
+```
+
+
+
+Para graficar los intervalos de confianza
+```{r}
+data <- muNormal %>% slice(1:100)
+mu <- data$media
+L <- data$LI
+U <- data$LU
+
+ggplot(df, aes(x = mu)) +
+  geom_point(size = 4) +
+  geom_line(yintercept=0)
+  geom_errorbar(aes(ymax = U, ymin = L))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+n = 5       # Tamaño de la cada muestra
+N = 10    # Número de muestras generadas
+
+set.seed(123)
+
+df <- data.frame(matrix(NA,n,7))
+colnames(df) <- c('# de muestra','n','media','desv. est.','error','LI','LS')
+
+for(i in 1:N)
+{
+  x <- rnorm(n)    # Creamos una muestra de tamaño N
+  mu <- mean(x)
+  sigma <- sd(x)
+  error <- qnorm(0.975)*sigma/sqrt(n)
+  
+  df[i,1] <- i
+  df[i,2] <- n
+  df[i,3] <- mu
+  df[i,4] <- sigma
+  df[i,5] <- error
+  df[i,6] <- mu - error
+  df[i,7] <- mu + error
+}
+head(df)
+  
+```
+
+The second step is to compute the confidence interval for each sample. \n
+You can use PROC MEANS to compute the confidence limits. The LCLM= and UCLM= outputs the lower and upper endpoints of the confidence interval to a SAS data set. I also output the sample mean for each sample. Notice that the BY statement is an efficient way to analyze all samples in a simulation study.
+
+```{r}
+
+```
+

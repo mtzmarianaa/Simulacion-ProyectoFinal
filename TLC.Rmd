@@ -28,7 +28,7 @@ ma <- function(poblacion)
       value <- c()
       while(cont>0)
       {
-        muestra <- sample(poblacion,i,replace=TRUE)    # extraemos la muestra de exponenciales de tamaño i
+        muestra <- sample(poblacion,i,replace=TRUE)    # extraemos la muestra de la distribución definida de tamaño i
         xbar <- mean(muestra)                    # sacamos la media de la muestra
         value <- c(value,xbar)                   # Guardamos la media de la muestra
         cont <- cont -1                          # Pasamos a generar otra muestra de las j que debemos generae
