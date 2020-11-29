@@ -254,7 +254,9 @@ b_ic95
 
 bcuentaCI(b_ic95)
 
+#png(file="bIC_95-4.png",width = 650, height = 500)
 bgraphCI(b_ic95,1,300)
+#dev.off()
 ```
 
 
