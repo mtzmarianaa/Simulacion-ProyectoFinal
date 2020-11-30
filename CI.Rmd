@@ -6,6 +6,8 @@ Simulación de **Coverage Probability of Confidence Intervals**
 ```{r,message=FALSE,warning=FALSE}
 library(ggplot2)
 library(tidyverse)
+library(ggpubr)
+library(Rmisc)
 ```
 
 
@@ -55,7 +57,6 @@ Probamos la función
 # con percentil de 1-0.05=.95
 muNormal <- muIC(z=0.95)
 muNormal
-cuentaCI(muNormal)
 ```
 
 Función para contar la proporción de muestras cuyos intervalos de confianza contienen al valor del parámetro; es decir, si quisimos un IC del 95% para la muestra entonces el aproximadamente 95% de los IC de las muestras dadas deben contener al parámetro poblacional $\mu = 0$ (pues las muestras son normales estándar)
@@ -87,7 +88,6 @@ cuentaCI <- function(dataframe)
 ```
 
 
-Función para graficar los intervalos de confianza de las muestras dadas
 ```{r}
 data <- muNormal %>% slice(1:150)
 x <- data$`# de muestra`
@@ -100,10 +100,10 @@ ggplot(data, aes(x = x, y=mu, color=(L>0 | U<0))) +
   geom_hline(yintercept = 0, color = 'red', size = 1) +
   geom_errorbar(aes(ymax = U, ymin = L)) +
   scale_colour_manual(values = c('gray20','red')) +
-  ggtitle(expression('Intervalos de Confianza para '~mu)) +
+  ggtitle(expression(atop('Intervalos de Confianza para '~mu,paste('\nMuestras normales estándar')))) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = 'none') +
   xlab('# de muestra') +
-  ylab('IC')
+  ylab(expression(mu))
 ```
 
 Función para graficar los intervalos de confianza de las muestras dadas
@@ -121,10 +121,10 @@ graphCI <- function(df,min=1,max=100)
     geom_hline(yintercept = 0, color = 'red', size = 1) +
     geom_errorbar(aes(ymax = U, ymin = L)) +
     scale_colour_manual(values = c('gray20','red')) +
-    ggtitle(expression('Intervalos de Confianza para '~mu)) +
+    ggtitle(expression(atop('Intervalos de Confianza para '~mu,paste('\nMuestras normales estándar')))) +
     theme(plot.title = element_text(hjust = 0.5), legend.position = 'none') +
     xlab('# de muestra') +
-    ylab('IC')
+    ylab(expression(mu))
 }
 ```
 
@@ -136,7 +136,9 @@ ic50
 
 cuentaCI(ic50)
 
+#png(file="nIC_50.png",width = 700, height = 432)
 graphCI(ic50,1,200)
+#dev.off()
 ```
 
 
@@ -147,7 +149,9 @@ ic95
 
 cuentaCI(ic95)
 
+#png(file="nIC_95.png",width = 700, height = 432)
 graphCI(ic95,1,200)
+#dev.off()
 ```
 
 
@@ -239,10 +243,10 @@ bgraphCI <- function(df,min=1,max=100)
     geom_hline(yintercept = p, color = 'red', size = 1) +
     geom_errorbar(aes(ymax = U, ymin = L)) +
     scale_colour_manual(values = c('gray20','red')) +
-    ggtitle(expression('Intervalos de Confianza para '~mu)) +
+    ggtitle(expression(atop('Intervalos de Confianza para '~theta,paste('\nMuestras Bernoullis')))) +
     theme(plot.title = element_text(hjust = 0.5), legend.position = 'none') +
     xlab('# de muestra') +
-    ylab('IC')
+    ylab(expression(theta))
 }
 ```
 
@@ -254,7 +258,7 @@ b_ic95
 
 bcuentaCI(b_ic95)
 
-#png(file="bIC_95-4.png",width = 650, height = 500)
+#png(file="bIC_95-4.png",width = 700, height = 432)
 bgraphCI(b_ic95,1,300)
 #dev.off()
 ```
@@ -267,5 +271,191 @@ b_ic50
 
 bcuentaCI(b_ic50)
 
+#png(file="bIC_50-2.png",width = 700, height = 432)
 bgraphCI(b_ic50,1,300)
+#dev.off()
 ```
+
+
+### Covertura del Intervalo Wald
+
+Función que define el intervalo de confianza
+```{r}
+icWald <- function(success=50,n=100,alpha=0.95)
+{
+  df <- data.frame(matrix(NA,ncol=2))
+  
+  p <- success/n
+  sd <- sqrt(p*(1-p)/n)
+  z <- qnorm(1-(1-alpha)/2)
+  df[1] <- p - z*sd
+  df[2]<- p + z*sd
+  
+  return(df)
+}
+```
+
+
+Función que da un dataframe con la probabilidad, el % de cobertura del IC de la muestra binomial de tamaño n
+```{r}
+dfWald <- function(n=50,N=10000,aConf=0.95)
+{
+  set.seed(123)
+  probs <- seq(0.001,0.999,0.01)
+  df <- data.frame(matrix(NA,ncol=4,nrow = probs))
+  names(df) <- c('Probabilidad','% de cobertura','% del IC','Tamaño de muestra')
+  isCovered <- as.numeric()
+  
+  for(i in 1:length(probs))
+  {
+    df[i,1] <- probs[i]
+    x <- rbinom(n=N,size=n,prob=probs[i])
+    for(j in 1:N)
+    {
+      ci <- icWald(success=x[j],n=n,alpha=aConf)
+      isCovered[j] <- (ci[1]< probs[i]) & (probs[i]<ci[2])
+    }
+    df[i,2] <- mean(isCovered)*100
+    df[i,3] <- aConf*100
+    df[i,4] <- n
+  }
+  return(df)
+}
+```
+
+
+Función que grafica el % de cobertura real para el IC del % deseado para una muestra binomial de tamaño n
+```{r}
+gWald <- function(df)
+{
+  p <- df$Probabilidad
+  cob <- df$`% de cobertura`
+  ic <- df$`% del IC`[1]
+  n <- df$`Tamaño de muestra`[1]
+  
+  myTitle <- paste('Cobertura real para el IC binomial del ',ic,'% para n=',n)
+
+  g <- ggplot(df, aes(x=p,y=cob)) + geom_line(color='black',size=0.8) +
+        geom_hline(yintercept = ic, linetype='solid',color='red',size=0.8) + 
+        ggtitle(myTitle) + 
+        theme(plot.title = element_text(hjust = 0.5)) +
+        ylab('% de cobertura') +
+        xlab(expression(theta)) +
+        coord_cartesian(ylim=c(75,100))  # Tomamos del 75 al 100%
+  
+  return(g)
+}
+```
+
+
+Gráficas individuales: 
+Cobertura real del IC binomial del **95%** para una muestra de **n=10**
+```{r}
+wIC10 <- dfWald(n=10)
+
+#png(file="wIC_10.png",width = 700, height = 432)
+gWald(wIC10)
+#dev.off()
+```
+
+
+Cobertura real del IC binomial del **95%** para una muestra de **n=30**
+```{r}
+wIC30 <- dfWald(n=30)
+
+#png(file="wIC_30.png",width = 700, height = 432)
+gWald(wIC30)
+#dev.off()
+```
+
+
+Cobertura real del IC binomial del **95%** para una muestra de **n=50**
+```{r}
+wIC50 <- dfWald(n=50)
+
+#png(file="wIC_50.png",width = 700, height = 432)
+gWald(wIC50)
+#dev.off()
+```
+
+Cobertura real del IC binomial del **95%** para una muestra de **n=100**
+```{r}
+wIC100 <- dfWald(n=100)
+
+#png(file="wIC_100.png",width = 700, height = 432)
+gWald(wIC100)
+#dev.off()
+```
+
+
+Juntamos las gráficas
+
+Primero necesitamos quitarles el título
+```{r}
+gWald_all <- function(df)
+{
+  p <- df$Probabilidad
+  cob <- df$`% de cobertura`
+  ic <- df$`% del IC`[1]
+  n <- df$`Tamaño de muestra`[1]
+  
+  myTitle <- paste('n=',n)
+
+  g <- ggplot(df, aes(x=p,y=cob)) + geom_line(color='black',size=0.8) +
+        geom_hline(yintercept = ic, linetype='solid',color='red',size=0.8) +
+        ggplot(myTitle) +
+        ylab('% de cobertura') +
+        xlab(expression(theta)) +
+        coord_cartesian(ylim=c(75,100))  # Tomamos del 75 al 100%
+  
+  return(g)
+}
+```
+
+
+Ahora generamos las gráficas individuales
+```{r}
+wIC10 <- dfWald(n=10)
+gwIC10 <- gWald_all(wIC10)
+
+wIC30 <- dfWald(n=30)
+gwIC30 <- gWald_all(wIC30)
+
+wIC50 <- dfWald(n=50)
+gwIC50 <- gWald_all(wIC50)
+
+wIC100 <- dfWald(n=100)
+gwIC100 <- gWald_all(wIC100)
+```
+
+
+Para juntar todas las gráficas en un solo plot
+```{r}
+gAll <- ggarrange(gwIC10,gwIC30,gwIC50,gwIC100, 
+          ncol = 2, nrow = 2)
+gAll
+```
+
+
+```{r}
+multiplot(gwIC10,gwIC30,gwIC50,gwIC100, layout = matrix(c(1,2,3,4),nrow=2, byrow = TRUE))
+```
+
+
+
+
+```{r}
+library(magrittr)
+library(multipanelfigure)
+
+f <- multi_panel_figure(columns = 2,rows = 2)
+
+f %<>%
+  fill_panel(gwIC10, column = 1, row = 1,label='n=10') %<>%
+  fill_panel(gwIC30, column = 2, row = 1) %<>%
+  fill_panel(gwIC50, column = 1, row = 2) %<>%
+  fill_panel(gwIC100, column = 2, row = 2)
+f
+```
+
+
