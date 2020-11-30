@@ -7,7 +7,6 @@ Simulación de **Coverage Probability of Confidence Intervals**
 library(ggplot2)
 library(tidyverse)
 library(ggpubr)
-library(Rmisc)
 ```
 
 
@@ -353,9 +352,9 @@ Cobertura real del IC binomial del **95%** para una muestra de **n=10**
 ```{r}
 wIC10 <- dfWald(n=10)
 
-png(file="wIC_10.png",width = 700, height = 432)
+#png(file="wIC_10.png",width = 700, height = 432)
 gWald(wIC10)
-dev.off()
+#dev.off()
 ```
 
 
@@ -402,8 +401,9 @@ gWald_all <- function(df)
   myTitle <- paste('n=',n)
 
   g <- ggplot(df, aes(x=p,y=cob)) + geom_line(color='black',size=0.8) +
-        geom_hline(yintercept = ic, linetype='solid',color='red',size=0.8) +
-        ggplot(myTitle) +
+        geom_hline(yintercept = ic, linetype='solid',color='red',size=0.8) + 
+        ggtitle(myTitle) + 
+        theme(plot.title = element_text(hjust = 0.5)) +
         ylab('% de cobertura') +
         xlab(expression(theta)) +
         coord_cartesian(ylim=c(75,100))  # Tomamos del 75 al 100%
@@ -415,16 +415,16 @@ gWald_all <- function(df)
 
 Ahora generamos las gráficas individuales
 ```{r}
-wIC10 <- dfWald(n=10)
+#wIC10 <- dfWald(n=10)
 gwIC10 <- gWald_all(wIC10)
 
-wIC30 <- dfWald(n=30)
+#wIC30 <- dfWald(n=30)
 gwIC30 <- gWald_all(wIC30)
 
-wIC50 <- dfWald(n=50)
+#wIC50 <- dfWald(n=50)
 gwIC50 <- gWald_all(wIC50)
 
-wIC100 <- dfWald(n=100)
+#wIC100 <- dfWald(n=100)
 gwIC100 <- gWald_all(wIC100)
 ```
 
@@ -432,30 +432,12 @@ gwIC100 <- gWald_all(wIC100)
 Para juntar todas las gráficas en un solo plot
 ```{r}
 gAll <- ggarrange(gwIC10,gwIC30,gwIC50,gwIC100, 
-          ncol = 2, nrow = 2)
+          ncol = 2, nrow = 2) 
+
+#png(file="wIC_all.png",width = 700, height = 432)
 gAll
+#dev.off()
 ```
 
-
-```{r}
-multiplot(gwIC10,gwIC30,gwIC50,gwIC100, layout = matrix(c(1,2,3,4),nrow=2, byrow = TRUE))
-```
-
-
-
-
-```{r}
-library(magrittr)
-library(multipanelfigure)
-
-f <- multi_panel_figure(columns = 2,rows = 2)
-
-f %<>%
-  fill_panel(gwIC10, column = 1, row = 1,label='n=10') %<>%
-  fill_panel(gwIC30, column = 2, row = 1) %<>%
-  fill_panel(gwIC50, column = 1, row = 2) %<>%
-  fill_panel(gwIC100, column = 2, row = 2)
-f
-```
 
 
