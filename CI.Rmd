@@ -353,9 +353,9 @@ Cobertura real del IC binomial del **95%** para una muestra de **n=10**
 ```{r}
 wIC10 <- dfWald(n=10)
 
-#png(file="wIC_10.png",width = 700, height = 432)
+png(file="wIC_10.png",width = 700, height = 432)
 gWald(wIC10)
-#dev.off()
+dev.off()
 ```
 
 
