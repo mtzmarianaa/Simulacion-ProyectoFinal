@@ -263,6 +263,19 @@ bgraphCI(b_ic95,1,300)
 ```
 
 
+Probamos con intervalos de confianza del $95\%$ (con $\alpha=0.05$ y $\frac{\alpha}{2} = 0.025$) y con $\theta = 0.9$
+```{r}
+b_ic95 <- bmuIC(p=0.9, z=0.975)
+b_ic95
+
+bcuentaCI(b_ic95)
+
+#png(file="bIC_95-9.png",width = 700, height = 432)
+bgraphCI(b_ic95,1,300)
+#dev.off()
+```
+
+
 Probamos con intervalos de confianza del $50\%$ (con $\alpha=0.5$ y $\frac{\alpha}{2} = 0.25$) y con $\theta = 0.2$
 ```{r}
 b_ic50 <- bmuIC(p=0.2, z=0.75)
@@ -275,6 +288,17 @@ bgraphCI(b_ic50,1,300)
 #dev.off()
 ```
 
+Probamos con intervalos de confianza del $25\%$ (con $\alpha=0.75$ y $\frac{\alpha}{2} = 0.375$) y con $\theta = 0.2$
+```{r}
+b_ic25 <- bmuIC(p=0.2, z=0.625)
+b_ic25
+
+bcuentaCI(b_ic25)
+
+#png(file="bIC_25-2.png",width = 700, height = 432)
+bgraphCI(b_ic25,1,300)
+#dev.off()
+```
 
 ### Covertura del Intervalo Wald
 
