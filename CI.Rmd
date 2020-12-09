@@ -258,7 +258,7 @@ b_ic95
 bcuentaCI(b_ic95)
 
 #png(file="bIC_95-4.png",width = 700, height = 432)
-bgraphCI(b_ic95,1,300)
+bgraphCI(b_ic95,1,200)
 #dev.off()
 ```
 
@@ -271,7 +271,7 @@ b_ic95
 bcuentaCI(b_ic95)
 
 #png(file="bIC_95-9.png",width = 700, height = 432)
-bgraphCI(b_ic95,1,300)
+bgraphCI(b_ic95,1,200)
 #dev.off()
 ```
 
@@ -284,7 +284,7 @@ b_ic50
 bcuentaCI(b_ic50)
 
 #png(file="bIC_50-2.png",width = 700, height = 432)
-bgraphCI(b_ic50,1,300)
+bgraphCI(b_ic50,1,200)
 #dev.off()
 ```
 
@@ -296,7 +296,7 @@ b_ic25
 bcuentaCI(b_ic25)
 
 #png(file="bIC_25-2.png",width = 700, height = 432)
-bgraphCI(b_ic25,1,300)
+bgraphCI(b_ic25,1,200)
 #dev.off()
 ```
 
