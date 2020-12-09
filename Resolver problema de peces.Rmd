@@ -1,0 +1,269 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+$\bf{Teorema \ de \ Bayes}$ 
+
+
+Sea $\{A_1,A_2,...,A_n\}$ un conjunto de sucesos mutuamente excluyentes y exhaustivos, y tales que la probabilidad de cada uno de ellos es distinta de cero $0$. Sea $B$ un evento cualquiera del que se conocen las probabilidades condicionales. $P(B|A_i)$. Entonces, la probabilidad $P(A_i|B)$ viene dada por la expresión:
+
+
+
+$P(A_i|B)=\frac{P(B|A_i)P(A_i)}{P(B)}$
+
+donde
+
+$P(A_i)$ son las probabilidades a priori
+
+$P(B|A_i)$ es la probabilidad de $B$ en la hipótesis $A_i$
+
+$P(A_i|B)$ son las probabilidades a posteriori.
+
+Con base en la definición de probabilidad condicionada se obtiene la Fórmula de Bayes, también conocida como Regla de Bayes:
+
+
+$P(A_i|B)=\frac{P(B|A_i)P(A_i)}{\sum_{k=1}^{n}P(B|A_k)P(A_k)}$
+
+Esta fórmula nos permite calcular la probabilidad condicional $P(A_i|B)$.
+
+
+$\bf{Inferencia \ Bayesiana}$
+
+Bayes (1763) analiza el siguiente experimento mental: se lanza una pelota sobre una mesa y se marca la posición de la pelota. Se lanza una segunda bola, repetidamente, sobre la mesa. Repetimos el paso anterior y registramos, después de cada lanzamiento, si la  bola cayó a la izquierda o a la derecha, adelante o atrás, de la primera. Thomas B. calculó la probabilidad condicional de la posición de la primera bola dada la secuencia de lanzamientos de las demás bolas y nota que entre más pelotas eran lanzadas, más actualizaba su idea de donde estaba la primera bola. Aunque no estaba completamente seguro de la localización, con cada nueva pieza de evidencia, podía estar cada vez estaba más seguro de la posición real. Así es como el mundo funciona, no podemos conocer la forma en que funciona perfectamente, solo podemos actualizar nuestro conocimiento mientras más evidencia hay disponible. 
+Cuando Richard Price introduce el Teorema de Bayes, hace una analogía con un hombre que ha estado toda su vida en una cueva y de pronto sale y ve el sol salir por primera vez. Se pregunta si el sol siempre hace eso o si solo es un capricho. Después cada día que el sol salía, el podía tener un poco más de información y estar más confiado que esa la forma en que el mundo funcionada. Es una formula que no está hecha para aplicarse un sola vez, fue creada para ser usada múltiples veces y cada vez ganando evidencia y actualizando la probabilidad de que algo es verdad.
+
+Consideremos el primer ejemplo. Supongamos que sales positivo a un test para detectar el COVID-19. El doctor que te realizó la prueba te dijo que de cada $100$ personas que tienen la enfermedad, el test puede detectar $99$ casos. Ahora, ¿Cuál es la probabilidad de que actualmente tengas la enfermedad, dado que el test fue positivo?. El Teorema de Bayes puede ser de gran ayuda. 
+
+Definamos los siguientes eventos
+
+$H=Tener \ COVID-19$
+
+$\urcorner H= No \ tener \ COVID-19$
+
+$E=Salir \ positivo \ en \ la \ prueba$
+
+$\urcorner E=Salir \ negativo \ en \ la \ prueba$
+
+Para calcular lo que se pide, necesitamos la probabilidad de que tengas la enfermedad, antes de saber los resultados de la prueba $P(H)$. Después, multiplicamos $P(H)$  por la probabilidad de que sea positivo si tienes la enfermedad $P(E|H)$. Por último, dividimos por la probabilidad de salir positivo $P(E)$. Este último término es la combinación de la probabilidad de tener la enfermedad  y testear positivo,$P(H)P(E|H)$,  más la probabilidad de no tener la enfermedad y testear positivo, $P(\urcorner H)P(E|\urcorner H)$. 
+
+La distribución a priori $P(H)$ es difícil de determinar, pero en este caso un punto razonable para empezar es la frecuencia de la enfermedad en la población que es $0.001$. Por los demás datos del problema,  $P(E|H)=0.99$, $P(E|\urcorner H)=.01$, $P(\urcorner H)=0.999$. Entonces tenemos lo siguiente:
+
+$P(H|E)=\frac{P(E|H)P(E)}{P(H)P(E|H)+P(\urcorner H)P(E|\urcorner H)}=\frac{.99 (.001)}{.001(.99)+.999(.01)}=9 \%$
+
+Se obtiene una probabilidad de $9 \%$ de realmente tener la enfermedad después de testear positivo y es un valor muy bajo. Parece magia, pero es sentido común aplicado a matemáticas. Pensemos en una muestra de $1000$ personas, una persona tiene la enfermedad. El test identifica correctamente a esta persona, pero de las otras $999$,  el $1 \%$, que son $10$ personas, también serán identificadas con la enfermedad. Entonces, si eres una persona que tiene los resultados positivos del test, formaras parte de un grupo de $11$ personas, de las cuales solo $1$ tiene la enfermedad, así obtenemos la probabilidad $\frac{1}{11}=9 \%$. 
+
+La formula de Bayes no está hecha para aplicarse una sola vez, fue creada para ser usada múltiples veces y cada vez ganando evidencia y actualizando la probabilidad de que algo es verdad. El primer ejemplo, cuando sales positivo a una prueba, qué pasaría si fueras al doctor y vuelves a testear por otro laboratorio independiente y ese test también vuelve a ser positivo. Ahora, ¿Cuál es la probabilidad de que actualmente tengas la enfermedad? Ahora, en lugar de usar $P(H)=0.001$ como distribución a priori, usamos la distribución posterior obtenida en el ejemplo anterior, $P(H)=0.09$. Calculamos la nueva probabilidad posterior:
+
+$P(H|E)==\frac{.99 (.09)}{.09(.99)+.91(.01)}=90.73\%$
+
+La nueva probabilidad basado en dos test positivos, es del $91 \%$. Hay $91 \%$ de probabilidad de tener la enfermedad, dos diferentes resultados de dos diferentes laboratorios incrementan las probabilidades pero aun no es tan alta como el nivel de precisión del test, que es del $99 \%$.
+
+Para poder entender mejor la forma en que podemos usar el Teorema de Bayes para analizar nuestros datos, resolveremos un ejercicio práctico utilizando el método de Computación Bayesiana Aproximada.  
+
+$Computación \ Bayesiana \ Aproximada \ (CBA)$
+
+Utilizaremos el método conocido como  "Computación bayesiana aproximada", que, aunque es ineficiente computacionalmente, es fácil de entender.
+
+Necesitamos tres cosas para definir nuestro proceso de estimación: 
+
+$1- \ Datos.$ Es el valor observado, nuestro conjunto de observaciones $x_1,...,x_n$. 
+
+$2.- \ Un \ modelo \ generador \ (MG).$ Un modelo generador es cualquier tipo de programa computacional, expresión matemática o conjunto de reglas, que recibe como argumento un conjunto de parámetros fijos y nos devuelve datos simulados. Un ejemplo típico es la función de distribución de una variable normal, porque nos permite extraer muestras aleatorias. Otro ejemplo es cualquier función que puedes crear en R y pueda simular datos de un experimento. 
+
+$3.- \ Distribución \ a \ priori.$ ¿Qué información se tiene sobre el modelo, antes de observar los datos?. Al incluir esta distribución, el análisis Bayesiano usa la probabilidad para representar la incertidumbre en todas las partes de un modelo estadístico.
+
+En forma general, tenemos que considerar un conjunto de parámetros $\bar{\theta}=(\theta_1,\theta_2,...,\theta_n)$, y son nuestro valor objetivo a estimar. Así, consideramos dos situaciones distintas:
+
+1. Si conocemos los parámetros $\bar{\theta}$, podemos usar $MG$ del experimento y obtener un conjunto de observaciones  $x_1,...,x_n.$
+
+2. Si tenemos un conjunto de observaciones $x_1,...,x_n$, podemos usar métodos de inferencia y el $MG$ para obtener estimaciones de los parámetros $\bar{\theta}$.
+
+En este problema nos encontramos en la segunda situación y el análisis bayesiano nos ayudará a resolverlo.
+
+$\bf{Problema \ de \ captura \ y \ recaptura}$ 
+
+Un estadístico está interesado en el número $N$ de peces que hay en un estanque. El captura $250$ peces, los marca y los regresa al estanque. Unos cuantos días después regresa y atrapa peces hasta que obtiene $50$ peces marcados, en ese punto también tiene $124$ peces no marcados (la muestra total es de $174$ peces).
+
+a) ¿Cuál es la estimación de $N$?
+Si en la segunda muestra obtuvimos $50$ peces marcados de un total de $174$, entonces, $\frac{50}{174}$ es la proporción de peces marcados en la laguna. Pero si bien nosotros no sabemos cuántos peces hay, lo que sí sabemos es cuántos peces marcados hay en la laguna. Si sabemos que hay $250$ peces marcados y representan el $\frac{50}{174} \%$ del total, entonces, usando regla de 3: $\frac{250}{(x)}= \frac{50}{174}$ siendo $x$ el número aproximado de peces.  Hay $X=250*\frac{174}{50}=870$ peces aproximadamente en la laguna 
+
+¿De qué manera se puede resolver este problema utilizando Inferencia Bayesiana?
+
+$\bf{¿Cuántos \ peces \ hay \ en \ el \ lago?}$
+
+Regresamos a la estructura de un $CBA$. En este problema en concreto:
+
+$1.- \ Datos.$ La observación obtenida $x$ son los $peces \ no \ marcados$ que se extraen después de obtener $50$ peces marcados.
+
+$2.- \ MG.$ El $Modelo \ Generador$ corresponde al proceso  de $Marcar \ y \ recapturar$
+
+$3.-$ El parámetro a estimar es $\theta=Numero \ de \ peces \ en \ el \ lago$
+
+En este caso, lo que necesitamos estimar es el número de peces en el lago y sabemos que el número de peces no marcados es igual a $124$. 
+
+$\bf{MG: \ Marcar \ y \ recapturar}$
+
+Definiremos una función que realice el siguiente procedimiento  y será nuestro $MG$, que nos ayudara a estimar el número de peces en el lago $\theta$.
+
+$1.-$ Capturar $\theta$ peces. 
+
+$2.-$ Marcar $250$ y los regresamos al lago.
+
+$3.-$ Después de un tiempo, capturar peces hasta que se obtienen $50$ peces marcados.
+
+$4.-$ Contar, en los resultados del paso anterior, cuántos peces no están marcados. No contamos el número de peces marcados porque este siempre será igual a 50. La observación que nos interesa son los peces no marcados.  
+
+
+$\bf{Enfoque \ clásico}$
+
+Supongamos que la distribución a priori de $\theta \sim Unif \{250,...,1500\}$. Cuando la distribución a priori es la distribución uniforme la llamamos $Distribución  \ a \ priori \ no \ informativa$ porque no contiene mucha información sobre el parámetro. Le estamos asignando el mismo peso de probabilidad a todos los valores.
+
+Definimos el siguiente procedimiento para ajustar el modelo:
+
+$1.$ Obtener una muestra aleatoria de tamaño $n$ de la distribución a priori del parámetro $\theta_1,...,\theta_n$. 
+
+$2.$ Aplicar el $MG$ a cada observación obtenida de la muestra y así obtener un conjunto de observaciones $x_1,...,x_n$.
+
+$3.$ Nos quedaremos que las $\theta_i$ cuyos valores generados sean iguales a los observados. En este caso en particular, nos quedaremos con las $\theta_i$ que generan 124 peces no marcados. 
+
+$4.$ La distribución de aquellos parámetros que cumplen la condición representa la probabilidad de que la observación haya sido producida por cierto valor del parámetro. A partir de está distribución podemos hacer estimaciones del valor desconocido. 
+
+A continuación programamos el $MG$, extraemos la muestra de la distribución a priori y graficamos su histograma. 
+
+```{r}
+set.seed(165696)
+#n es el numero de simulaciones del proceso. Elegiremos 100,000. 
+n <- 100000
+# Definimos y extraemos las muestras de la distribucion a priori del numero de peces
+n_peces<- sample(250:1500, n, replace = TRUE)
+#Graficamos el histograma de la distribucion a priori
+hist(n_peces,main="Distribucion a priori",col="chartreuse4",xlab="Numero de peces")
+```
+
+
+Luego, programaremos la función $marcar \ peces$ que servirá como nuestro $MG$.
+
+```{r}
+#Definimos el modelo generador
+marcar_peces <- function(n_peces) {
+  #De los n_peces, 250 estarán marcados y n_peces-250 no.
+    peces <- rep(0:1, c(n_peces - 250, 250))
+  #Definimos las variables guardaran los valores de interes
+    bandera=0
+    peces_marc=0
+    peces_nomarc=0
+  #El siguiente codigo simula el proceso de capturar peces hasta obtener 50 peces marcados. 
+    while(bandera==0){
+      muestra<-sample(peces,size=1)
+      if(muestra==1){peces_marc<-peces_marc+1}
+      else{peces_nomarc<-peces_nomarc+1}
+      if(peces_marc==50)bandera<-1
+    }
+  #Al final, guardamos el numero de peces no marcados.
+return(peces_nomarc)
+}
+```
+
+El siguiente código realiza el proceso para obtener la distribución a posteriori del número de peces en el lago. Recordemos que tenemos una muestra de tamaño $100,000$ de la distribución a priori y debemos aplicar el $MG$ a cada observación. Al final, nos quedamos con los valores del parámetro que nos dan resultados iguales a los observados. Por lo tanto, nos quedamos con los valores de theta que dieron como resultado $124$ peces no marcados.
+
+```{r}
+#Simulamos el proceso
+n_pecesmarcados<- rep(NA, n)
+for(i in 1:n) {
+  n_pecesmarcados[i] <- marcar_peces(n_peces[i])
+}
+#Obtenemos la distribucion posterior de número de peces
+#Nos quedamos con los valores del parámetro que nos dan resultados iguales a los observados. 
+post_peces <- n_peces[n_pecesmarcados == 124]
+#Graficamos el histograma de la distribución a posteriori
+hist(post_peces,main="Distribucion a posteriori",col="cadetblue",xlab="Numero de peces")
+```
+
+Aunque la distribución es uniforme discreta al principio, cuando observamos la distribución posteriori del parámetro es distinta. No parece que la distribución posterior sea simétrica, esta sesgada a la izquierda. La mayoria de las observaciones se encuentre entre $800$ y $950$. Utilizamos los datos observados después  de aplicar el modelo generador de datos para actualizar nuestro conocimiento sobre el parámetro y obtener una mejor aproximación de la distribución del parámetro Por ejemplo, los valores menores a $600$ o mayores $1400$ nunca simularon datos iguales a los que nosotros observamos, por eso es que la probabilidad posterior es  muy pequeña. Aunque al principio les asignamos una probabilidad positiva, después de observar los datos notamos que son valores con una probabilidad muy baja. Es muy poco probable que los datos hubieran provenido de estos parámetros. 
+
+La muestra de la distribución a priori era de tamaño $100,000$. A cada elemento de esta distribución se le aplico el $MG$. La distribución posterior contiene $411$ elementos de la distribución a priori, porque estos elementos fueron los que dieron como resultado $124$ peces no marcados. El número de elementos es pequeño porque el método es poco eficaz computacionalmente. Tendríamos que simular una muestra muy grande para obtener mejores estimaciones. Como el objetivo de este ejercicio es ilustrar la metodología, nos quedaremos los resultados obtenidos. 
+
+```{r echo=FALSE}
+#La muestra de la distribución a priori era de tamaño 100,000
+#a cada elemento se le aplico el modelo generador. 
+length(post_peces)
+#411 elementos de la distribución a priori dan como resultado 124 peces no marcados
+```
+
+La distribución posterior es lo que el modelo sabe sobre el parámetro después de observamos los datos. La distribución posterior contiene información del modelo y de los datos. Sin embargo, a pesar de obtener como resultado final la distribución del parámetro, nos interesa conocer un valor puntual. Generalmente tomamos el valor que mayor probabilidad tiene de generar los datos ($MLE$) o podemos tomar el valor esperado de la distribución. El número de peces estimados, utilizando el método de $MLE$, es el siguiente:
+
+```{r echo=FALSE}
+densidad_post<-density(post_peces)
+dx<-densidad_post$x
+dy<-densidad_post$y
+d.max =dx[which.max(dy)]
+d.max
+```
+
+
+
+$\bf{Modelo \ modificado}$
+
+
+Una ventaja de utilizar el enfoque bayesiano, es que puedes incluir fuentes de información además de los datos, por ejemplo, la opinión de un experto. Supongamos que el pescador más experimentado del lugar te comenta lo siguiente:
+
+$“Siempre \ ha \ habido \ muchos \ peces \ en  \ el  \ lago.  \ ¡Alrededor \ de  \ 1000, \ diría  \ yo!"$
+
+
+Esta información se incluye en la distribución a priori del parámetro. Cambiamos la distribución de la uniforme a otra distribución más informativa. Elegimos como distribución a priori una distribución normal con media $\mu=1,000$  y una desviación estándar de $100$.
+
+```{r}
+set.seed(165696)
+#n es el numero de simulaciones del proceso. Elegiremos 100,000. 
+n <- 100000
+# Definimos y extraemos las muestras de la distribucion a priori del numero de peces
+n_peces<- rnorm(n,mean=1000,sd=100)
+#Graficamos el histograma de la distribucion a priori
+hist(n_peces,main="Distribucion a priori",col="chartreuse4",xlab="Numero de peces")
+```
+
+
+Procedemos a simular el proceso y obtener la nueva distribución posterior. 
+
+```{r}
+#Simulamos el proceso
+n_pecesmarcados<- rep(NA, n)
+for(i in 1:n) {
+  n_pecesmarcados[i] <- marcar_peces(n_peces[i])
+}
+#Obtenemos la distribucion posterior de número de peces
+#Nos quedamos con los valores del parámetro que nos dan resultados iguales a los observados. 
+post_peces <- n_peces[n_pecesmarcados == 124]
+#Graficamos el histograma de la distribución a posteriori
+hist(post_peces,main="Distribucion a posteriori",col="cadetblue",xlab="Numero de peces")
+```
+
+Parece ser que después de usar la información otorgada por el pescador experto y la información proveniente de los datos, es más probable que el número de peces este entre $900$ y $1,000$. Además, la distribución a posterior ahora toma una forma simétrica y parecida a la normal, por influencia de la distribución a priori que elegimos en esta ocasión. Incluir la opinión del experto dentro del análisis hace que las estimaciones cambien y sean mejores (suponiendo que el experto no nos engaña).
+
+La muestra de la distribución a priori era de tamaño $100,000$. A cada elemento de esta distribución se le aplico el modelo generador. La distribución posterior contiene $1,005$ elementos de la distribucióna priori, porque estos elementos fueron los que dieron como resultado $124$ peces no marcados. Si recordamos, considerando una distribución a priori no informativa, el numero de elementos era menor. La opinión del experto no solo hace más acertada la estimación, si no que hace que el método sea menos pesado computacionalmente. 
+
+```{r}
+#La muestra de la distribución a priori era de tamaño 100,000
+#a cada elemento se le aplico el modelo generador. 
+length(post_peces)
+#1,005 elementos de la distribución a priori dan como resultado 124 peces no marcados
+```
+
+El número de peces estimados, utilizando el método de $MLE$, es el siguiente:
+
+```{r echo=FALSE}
+densidad_post<-density(post_peces)
+dx<-densidad_post$x
+dy<-densidad_post$y
+d.max =dx[which.max(dy)]
+d.max
+```
+
+
+ 
