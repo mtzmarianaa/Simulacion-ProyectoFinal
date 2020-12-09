@@ -193,5 +193,18 @@ graphs(df,mu,4)
 #dev.off()
 ```
 
+### 5. Alteración de supuestos: Varianza no finita
+```{r}
+ggplot(data.frame(x = c(-5, 5)), aes(x)) + ggtitle("Comparación entre distribución Cauchy y distribución Normal estándar")+
+  stat_function(fun = dcauchy, n = 1e3, args = list(location = 0, scale = 1), aes(color = "a"), size = 2) +
+  stat_function(fun = dnorm, n = 1e3, args = list(mean = 0, sd = 1), aes(color = "b"), size = 2) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_color_discrete(name = "",
+                       labels = c("a" = expression(Cauchy ~ x[0] == 0*","~ gamma == 1),
+                                  "b" = expression(Normal ~ mu == 0*","~ sigma == 1))) +
+  ylab("P(x)") + theme_bw(base_size = 16) + theme(legend.position = c(0.8, 0.8), legend.text.align = 0)
+
+```
+
 
 
