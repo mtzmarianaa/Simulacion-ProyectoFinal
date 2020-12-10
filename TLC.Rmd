@@ -196,7 +196,14 @@ graphs(df,mu,4)
 
 
 
-### 5. Alteración de supuestos: Varianza no finita
+
+
+
+
+
+### **5.1** Alteración de supuestos: Varianza no finita
+
+
 ```{r}
 ggplot(data.frame(x = c(-5, 5)), aes(x)) + ggtitle("Distribuciones Cauchy vs Normal Estándar")+
   stat_function(fun = dcauchy, n = 1e3, args = list(location = 0, scale = 1), aes(color = "a"), size = 2) +
@@ -210,9 +217,9 @@ ggplot(data.frame(x = c(-5, 5)), aes(x)) + ggtitle("Distribuciones Cauchy vs Nor
 ```
 
 ```{r}
-set.seed(1)
+set.seed(123)
 muestras <- NULL
-for (i in 1:100){
+for (i in 1:1000){
   muestras$datos[[i]] <- rcauchy(100,0,1)
   muestras$medias[[i]] <- mean(muestras$datos[[i]])
 }
@@ -221,6 +228,7 @@ c(summary(as.numeric(muestras$medias)),sd(as.numeric(muestras$medias)))
 ```
 
 ```{r}
+df <- as.data.frame(as.numeric(muestras$medias))
 ggplot(df, aes(y=as.numeric(muestras$medias))) + geom_boxplot() + ggtitle("Diagrama de caja de las medias") +
   ylab("Medias") + theme_bw(base_size = 16)
 ```
@@ -238,11 +246,72 @@ binwidth = .5 # passed to geom_histogram and stat_function
 df <- as.data.frame(as.numeric(muestras$medias)) 
 
 ggplot(df, aes(x = as.numeric(muestras$medias), mean = mean, sd = sd, binwidth = binwidth, n = n)) +
-  geom_histogram(binwidth = binwidth, aes(color = "a"), size = 0.1) + theme_bw() +
+  geom_histogram(binwidth = binwidth, aes(color = "a"), size = .3) + theme_bw() +
   stat_function(fun = function(x) dnorm(x, mean = mean, sd = sd) * n * binwidth, aes(color = "b"), size = 1)+
   scale_x_continuous(expand = c(0, 0)) + ggtitle("Histograma de las medias") +
   scale_color_discrete(name = "", 
                        labels = c("a" = expression(Cauchy),
+                                  "b" = expression(Normal))) + 
+  xlab("Media") + ylab("Frecuencia") + 
+  theme_bw(base_size = 16) + theme(legend.position = c(0.8, 0.8), legend.text.align = 0)
+```
+
+
+
+
+
+### **5.1** Alteración de supuestos: No independencia entre las variables
+
+```{r}
+lgc <- function(m,a,c,z0){ 
+  z <- z0
+  i <- 1 
+  repeat {
+    i <- i+1
+    z[i] <- (a*z[i-1]+c) %% m 
+    if (i>m) break
+  } 
+  return(z/m) 
+  }
+z <- lgc(m=100,a=2,c=50,z0=6) 
+par(pty="s") 
+plot(z[2:2049], z[1:2048],xlab = expression(u[i]),ylab = expression(u[i-1]),main = "Generador congruencial m=100,a=2,c=50", col = "darkorange")
+```
+
+
+```{r}
+muestra_dep <- matrix(0,1000,100)
+for (i in 1:1000){
+  muestra_dep[i,1:100] <- lgc(m=100-1,a=2*i,c=10*1,z0=i)
+}
+
+library(corrplot)
+corrplot(cor(muestra_dep[,1:20]), method = "color")
+```
+```{r}
+medias_dep <- NULL
+for (i in 1:1000){
+  medias_dep[i] <- mean(as.numeric(muestra_dep[i,]))
+}
+
+c(summary(medias_dep), sd(medias_dep))
+```
+```{r}
+mu = mean(medias_dep)
+sigma =  sd(medias_dep)
+
+n = 1000 
+mean = mu
+sd = sigma 
+binwidth = .0005 # passed to geom_histogram and stat_function 
+df <- as.data.frame(medias_dep) 
+
+ggplot(df, aes(x = medias_dep, mean = mean, sd = sd, binwidth = binwidth, n = n)) +
+  geom_histogram(binwidth = binwidth, aes(color = "a"), size = .3) + theme_bw() +
+  stat_function(fun = function(x) dnorm(x, mean = mean, sd = sd) * n * binwidth, aes(color = "b"), size = 1)+
+  scale_x_continuous(expand = c(0, 0)) + ggtitle("Histograma de las medias") +
+  scale_color_discrete(name = "", 
+                       labels = c("a" = expression(Uniformes),
                                   "b" = expression(Normal))) + 
   xlab("Media") + ylab("Frecuencia") + 
   theme_bw(base_size = 16) + theme(legend.position = c(0.8, 0.8), legend.text.align = 0)
