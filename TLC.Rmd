@@ -321,7 +321,7 @@ ggplot(df, aes(x = medias_dep, mean = mean, sd = sd, binwidth = binwidth, n = n)
 
 
 
-### **5.2** Alteración de supuestos: No identicamente distribuidas
+### **5.2** Alteración de supuestos: No identicamente distribuidas **revisar
 
 ```{r}
 set.seed(123)
@@ -329,7 +329,7 @@ muestras_id <- NULL
 for (i in 1:1000){
   muestras_id$datos[[i]] <- matrix(0,1,100)
   for (j in 1:100){
-    muestras_id$datos[[i]][j] <- rt(1, j, 1/j)
+    muestras_id$datos[[i]][j] <- rbinom(1, 50*j, 1/j) 
   }
   muestras_id$medias[[i]] <- mean(muestras_id$datos[[i]])
 }
@@ -348,7 +348,7 @@ sigma =  sd(as.numeric(muestras_id$medias))
 n = 1000 
 mean = mu
 sd = sigma 
-binwidth = .05 # passed to geom_histogram and stat_function 
+binwidth = .005 # passed to geom_histogram and stat_function 
 df <- as.data.frame(as.numeric(muestras_id$medias)) 
 
 ggplot(df, aes(x = as.numeric(muestras_id$medias), mean = mean, sd = sd, binwidth = binwidth, n = n)) +
@@ -356,7 +356,7 @@ ggplot(df, aes(x = as.numeric(muestras_id$medias), mean = mean, sd = sd, binwidt
   stat_function(fun = function(x) dnorm(x, mean = mean, sd = sd) * n * binwidth, aes(color = "b"), size = 1)+
   scale_x_continuous(expand = c(0, 0)) + ggtitle("Histograma de las medias") +
   scale_color_discrete(name = "", 
-                       labels = c("a" = expression(t~de~Student),
+                       labels = c("a" = expression(Binomiales),
                                   "b" = expression(Normal))) + 
   xlab("Media") + ylab("Frecuencia") + 
   theme_bw(base_size = 16) + theme(legend.position = c(0.8, 0.8), legend.text.align = 0)
