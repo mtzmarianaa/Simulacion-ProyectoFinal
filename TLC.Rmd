@@ -282,7 +282,7 @@ plot(z[2:2049], z[1:2048],xlab = expression(u[i]),ylab = expression(u[i-1]),main
 ```{r}
 muestra_dep <- matrix(0,1000,100)
 for (i in 1:1000){
-  muestra_dep[i,1:100] <- lgc(m=100-1,a=2*i,c=10*1,z0=i)
+  muestra_dep[i,1:100] <- lgc(m=100-1,a=2*i,c=10*i,z0=i)
 }
 
 library(corrplot)
